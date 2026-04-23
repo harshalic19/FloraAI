@@ -91,8 +91,8 @@ export default function PlantDetailScreen() {
   const handleWater = async () => {
     if (!plant) return;
     const updated = { ...plant, lastWatered: new Date().toISOString() };
-    await updatePlant(updated);
     setPlant(updated);
+    await updatePlant(updated);
   };
 
   const handleDelete = () => {

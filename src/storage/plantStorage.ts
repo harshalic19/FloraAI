@@ -13,7 +13,12 @@ export const getPlants = async (): Promise<Plant[]> => {
 };
 
 export const savePlants = async (plants: Plant[]): Promise<void> => {
-  await AsyncStorage.setItem(PLANTS_KEY, JSON.stringify(plants));
+  try {
+    await AsyncStorage.setItem(PLANTS_KEY, JSON.stringify(plants));
+  } catch (error) {
+    console.error('Failed to save plants:', error);
+    throw error;
+  }
 };
 
 export const addPlant = async (plant: Plant): Promise<void> => {
