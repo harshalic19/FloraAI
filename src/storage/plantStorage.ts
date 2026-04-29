@@ -6,19 +6,16 @@ const PLANTS_KEY = '@flora_ai_plants';
 export const getPlants = async (): Promise<Plant[]> => {
   try {
     const json = await AsyncStorage.getItem(PLANTS_KEY);
-    return json ? JSON.parse(json) : [];
-  } catch {
+    if (!json) return [];
+    return JSON.parse(json) as Plant[];
+  } catch (e) {
+    console.error('[FloraAI] getPlants failed:', e);
     return [];
   }
 };
 
 export const savePlants = async (plants: Plant[]): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(PLANTS_KEY, JSON.stringify(plants));
-  } catch (error) {
-    console.error('Failed to save plants:', error);
-    throw error;
-  }
+  await AsyncStorage.setItem(PLANTS_KEY, JSON.stringify(plants));
 };
 
 export const addPlant = async (plant: Plant): Promise<void> => {
@@ -32,8 +29,20 @@ export const updatePlant = async (updated: Plant): Promise<void> => {
   const idx = plants.findIndex((p) => p.id === updated.id);
   if (idx !== -1) {
     plants[idx] = updated;
-    await savePlants(plants);
+  } else {
+    // Plant missing from storage — upsert so the write always succeeds
+    plants.push(updated);
   }
+  await savePlants(plants);
+};
+
+export const updateLastWatered = async (plantId: string): Promise<Plant> => {
+  const plants = await getPlants();
+  const idx = plants.findIndex((p) => p.id === plantId);
+  if (idx === -1) throw new Error('Plant not found: ' + plantId);
+  plants[idx] = { ...plants[idx], lastWatered: new Date().toISOString() };
+  await savePlants(plants);
+  return plants[idx];
 };
 
 export const deletePlant = async (id: string): Promise<void> => {

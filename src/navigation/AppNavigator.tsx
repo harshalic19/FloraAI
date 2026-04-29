@@ -44,7 +44,12 @@ function HomeStack() {
       <Stack.Screen
         name="HomeMain"
         component={HomeScreen}
-        options={{ title: 'FloraAI 🌿', headerShown: false }}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddPlant"
+        component={AddPlantScreen}
+        options={{ title: 'Add Plant', headerBackTitle: 'Garden' }}
       />
       <Stack.Screen
         name="PlantDetail"
@@ -95,14 +100,6 @@ export default function AppNavigator() {
           title: 'My Garden',
           headerShown: false,
           tabBarIcon: ({ focused }) => <TabIcon emoji="🌿" focused={focused} />,
-        }}
-      />
-      <Tab.Screen
-        name="AddPlant"
-        component={AddPlantScreen}
-        options={{
-          title: 'Add Plant',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="➕" focused={focused} />,
         }}
       />
       <Tab.Screen

@@ -11,7 +11,6 @@ export interface Plant {
 
 export type RootTabParamList = {
   Home: undefined;
-  AddPlant: undefined;
   PlantDetail: { plantId: string };
   Reminders: undefined;
 };
