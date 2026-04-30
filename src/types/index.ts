@@ -6,6 +6,7 @@ export interface Plant {
   lastWatered: string; // ISO date string
   notes?: string;
   emoji?: string;
+  photoUri?: string;
   createdAt: string;
 }
 
