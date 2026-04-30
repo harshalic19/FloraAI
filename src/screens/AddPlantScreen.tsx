@@ -18,6 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { addPlant, generateId, getPlantEmoji, PLANT_EMOJIS } from '../storage/plantStorage';
+import { scheduleWateringReminder } from '../utils/notifications';
 import { Plant } from '../types';
 import { Colors, BorderRadius, Spacing, Typography } from '../constants/theme';
 
@@ -172,6 +173,7 @@ export default function AddPlantScreen() {
       createdAt: new Date().toISOString(),
     };
     await addPlant(plant);
+    await scheduleWateringReminder(plant);
     setSaving(false);
     navigation.goBack();
   };

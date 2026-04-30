@@ -22,6 +22,7 @@ import {
   updateLastWatered,
   updatePlant,
 } from '../storage/plantStorage';
+import { cancelWateringReminder, scheduleWateringReminder } from '../utils/notifications';
 import { Plant, RootTabParamList } from '../types';
 import { Colors, BorderRadius, Spacing, Typography } from '../constants/theme';
 
@@ -193,7 +194,8 @@ export default function PlantDetailScreen() {
       Animated.timing(toastOpacity, { toValue: 0, duration: 400, useNativeDriver: true }),
     ]).start(() => setShowToast(false));
 
-    await updateLastWatered(plant.id);
+    const updated = await updateLastWatered(plant.id);
+    await scheduleWateringReminder(updated);
     await load();
   };
 
@@ -203,6 +205,7 @@ export default function PlantDetailScreen() {
     Alert.alert('Remove Plant', `Remove "${plant.name}" from your garden?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: async () => {
+          await cancelWateringReminder(plant.id);
           await deletePlant(plant.id);
           navigation.goBack();
       }},
