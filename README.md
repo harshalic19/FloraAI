@@ -1,14 +1,5 @@
 <div align="center">
 
-```
-        🌿
-       🌿🌿
-      🌿🌿🌿
-     🌿🌿🌿🌿
-        ||
-        ||
-```
-
 # FloraAI
 
 **Your AI-powered plant care companion 🌿**
@@ -46,7 +37,12 @@ When you add a plant, FloraAI uses the **Google Gemini API** to instantly sugges
 
 ## 📸 Screenshots
 
-<!-- Add screenshots here -->
+<img width="200" alt="Screenshot 2026-05-01 at 00 35 55" src="https://github.com/user-attachments/assets/4e7b182d-9a80-4de6-82e2-f19f0c74ba07" />
+<img width="200" alt="Screenshot 2026-05-01 at 00 31 22" src="https://github.com/user-attachments/assets/fa8d300a-434c-462d-ac08-baeadb3025bf" />
+<img width="200" alt="Screenshot 2026-05-01 at 00 31 08" src="https://github.com/user-attachments/assets/f45619a4-df3b-4074-99f6-55cc647ba9b3" />
+<img width="200" alt="Screenshot 2026-05-01 at 00 30 57" src="https://github.com/user-attachments/assets/eaaef638-30d1-4246-bdbd-c0e3b9781a92" />
+<img width="200" alt="Screenshot 2026-05-01 at 00 30 41" src="https://github.com/user-attachments/assets/8fdd871f-88f0-4a2d-8f44-92a503bf052d" />
+<img width="200" alt="Screenshot 2026-05-01 at 00 30 07" src="https://github.com/user-attachments/assets/1430c16f-fe0d-410c-ad32-4f027d5a1c6a" />
 
 ---
 
