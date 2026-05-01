@@ -23,13 +23,16 @@ When you add a plant, FloraAI uses the **Google Gemini API** to instantly sugges
 
 ## Screenshots
 
-| Home | Reminders | Garden Stats |
-|:---:|:---:|:---:|
-| <img src="./screenshots/01_home.png" width="200"/> | <img src="./screenshots/02_reminders.png" width="200"/> | <img src="./screenshots/03_stats.png" width="200"/> |
+<div align="center">
 
-| Plant Detail | Add Plant (AI Sheet) | Add Plant (Full) | Splash |
-|:---:|:---:|:---:|:---:|
-| <img src="./screenshots/04_plant_detail.png" width="200"/> | <img src="./screenshots/05_add_plant_ai.png" width="200"/> | <img src="./screenshots/06_add_plant.png" width="200"/> | <img src="./screenshots/07_splash.png" width="200"/> |
+<img src="https://github.com/user-attachments/assets/4e7b182d-9a80-4de6-82e2-f19f0c74ba07" width="190" alt="Home"/>
+<img src="https://github.com/user-attachments/assets/fa8d300a-434c-462d-ac08-baeadb3025bf" width="190" alt="Reminders"/>
+<img src="https://github.com/user-attachments/assets/f45619a4-df3b-4074-99f6-55cc647ba9b3" width="190" alt="Garden Stats"/>
+<img src="https://github.com/user-attachments/assets/eaaef638-30d1-4246-bdbd-c0e3b9781a92" width="190" alt="Plant Detail"/>
+<img src="https://github.com/user-attachments/assets/8fdd871f-88f0-4a2d-8f44-92a503bf052d" width="190" alt="Add Plant"/>
+<img src="https://github.com/user-attachments/assets/1430c16f-fe0d-410c-ad32-4f027d5a1c6a" width="190" alt="Splash"/>
+
+</div>
 
 ---
 
