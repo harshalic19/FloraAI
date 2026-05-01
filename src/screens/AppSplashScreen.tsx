@@ -23,10 +23,11 @@ import Svg, {
 const { width: SW, height: SH } = Dimensions.get('window');
 
 // Layout constants — derived from the HTML design proportions
-const WAVE_H   = SH * 0.44;           // green crown covers ~44% of screen
-const BLOOM_S  = Math.min(SW * 0.58, 230); // bloom diameter
-const BLOOM_TOP = WAVE_H - BLOOM_S / 2;   // center the bloom ON the wave boundary
-const CONTENT_TOP = WAVE_H + BLOOM_S / 2 + 14; // text starts 14px below bloom bottom
+const WAVE_H = SH * 0.44; // green crown covers ~44% of screen
+const BLOOM_S = Math.min(SW * 0.58, 230); // bloom diameter
+const BLOOM_LIFT = 45; // how many px above the wave boundary
+const BLOOM_TOP = WAVE_H - BLOOM_S / 2 - BLOOM_LIFT;
+const CONTENT_TOP = WAVE_H + BLOOM_S / 2 - BLOOM_LIFT + 14;
 
 const C = {
   primary:      '#2D6A4F',

@@ -136,8 +136,7 @@ function PlantCard({
               <View style={styles.cardInfo}>
                 <View style={styles.cardNameRow}>
                   <Text style={styles.plantName} numberOfLines={1}>{plant.name}</Text>
-                  <View style={[styles.urgencyDot, { backgroundColor: urgencyColor(days) }]} />
-                </View>
+                  </View>
                 <Text style={styles.plantType}>{plant.type}</Text>
                 <WateringBadge days={days} />
               </View>
@@ -296,7 +295,7 @@ const styles = StyleSheet.create({
   list:            { paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: 100, gap: Spacing.md },
   swipeContainer:  { borderRadius: BorderRadius.lg },
   card:            { backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
-  cardAccent:      { width: 4, position: 'absolute', top: 0, bottom: 0, left: 0, zIndex: 1 },
+  cardAccent:      { width: 5, position: 'absolute', top: 0, bottom: 0, left: 0, zIndex: 1 },
   cardTouchable:   { flexDirection: 'row', alignItems: 'center' },
   cardLeft:        { flexDirection: 'row', alignItems: 'center', flex: 1, padding: Spacing.lg, paddingLeft: Spacing.lg + 4 },
   emojiContainer:  { width: 52, height: 52, borderRadius: BorderRadius.md, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.md, overflow: 'hidden' },
@@ -305,7 +304,6 @@ const styles = StyleSheet.create({
   cardInfo:        { flex: 1, gap: Spacing.xs },
   cardNameRow:     { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   plantName:       { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightSemiBold, color: Colors.text, flex: 1 },
-  urgencyDot:      { width: 8, height: 8, borderRadius: 4 },
   plantType:       { fontSize: Typography.fontSizeSM, color: Colors.textSecondary },
   badge:           { alignSelf: 'flex-start', borderRadius: BorderRadius.full, paddingHorizontal: Spacing.sm, paddingVertical: 2, marginTop: 2 },
   badgeText:       { fontSize: Typography.fontSizeXS, fontWeight: Typography.fontWeightSemiBold },
