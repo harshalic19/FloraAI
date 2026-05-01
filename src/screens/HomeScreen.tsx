@@ -9,6 +9,7 @@ import {
   StatusBar,
   Alert,
   Animated,
+  Image,
 } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -127,7 +128,10 @@ function PlantCard({
           >
             <View style={styles.cardLeft}>
               <View style={styles.emojiContainer}>
-                <Text style={styles.emoji}>{plant.emoji ?? '🪴'}</Text>
+                {plant.photoUri
+                  ? <Image source={{ uri: plant.photoUri }} style={styles.plantPhoto} />
+                  : <Text style={styles.emoji}>{plant.emoji ?? '🪴'}</Text>
+                }
               </View>
               <View style={styles.cardInfo}>
                 <View style={styles.cardNameRow}>
@@ -295,8 +299,9 @@ const styles = StyleSheet.create({
   cardAccent:      { width: 4, position: 'absolute', top: 0, bottom: 0, left: 0, zIndex: 1 },
   cardTouchable:   { flexDirection: 'row', alignItems: 'center' },
   cardLeft:        { flexDirection: 'row', alignItems: 'center', flex: 1, padding: Spacing.lg, paddingLeft: Spacing.lg + 4 },
-  emojiContainer:  { width: 52, height: 52, borderRadius: BorderRadius.md, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.md },
+  emojiContainer:  { width: 52, height: 52, borderRadius: BorderRadius.md, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.md, overflow: 'hidden' },
   emoji:           { fontSize: 28 },
+  plantPhoto:      { width: 52, height: 52 },
   cardInfo:        { flex: 1, gap: Spacing.xs },
   cardNameRow:     { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   plantName:       { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightSemiBold, color: Colors.text, flex: 1 },
