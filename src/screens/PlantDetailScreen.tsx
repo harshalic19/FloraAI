@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ComponentProps, useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -23,10 +23,10 @@ import {
   updatePlant,
 } from '../storage/plantStorage';
 import { cancelWateringReminder, scheduleWateringReminder } from '../utils/notifications';
-import { Plant, RootTabParamList } from '../types';
+import { Plant, HomeStackParamList } from '../types';
 import { Colors, BorderRadius, Spacing, Typography } from '../constants/theme';
 
-type PlantDetailRouteProp = RouteProp<RootTabParamList, 'PlantDetail'>;
+type PlantDetailRouteProp = RouteProp<HomeStackParamList, 'PlantDetail'>;
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
@@ -55,12 +55,7 @@ function HealthBar({ plant }: { plant: Plant }) {
 
   const anim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.timing(anim, {
-      toValue: progress,
-      duration: 700,
-      delay: 300,
-      useNativeDriver: false,
-    }).start();
+    Animated.timing(anim, { toValue: progress, duration: 700, delay: 300, useNativeDriver: false }).start();
   }, [plant.lastWatered]);
 
   const animWidth = anim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
@@ -90,10 +85,12 @@ function HealthBar({ plant }: { plant: Plant }) {
   );
 }
 
-function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
+
+function InfoRow({ icon, label, value }: { icon: IoniconsName; label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
-      <Text style={styles.infoIcon}>{icon}</Text>
+      <Ionicons name={icon} size={16} color={Colors.textSecondary} style={styles.infoIcon} />
       <View style={styles.infoTextBlock}>
         <Text style={styles.infoLabel}>{label}</Text>
         <Text style={styles.infoValue}>{value}</Text>
@@ -108,7 +105,7 @@ export default function PlantDetailScreen() {
   const [plant, setPlant]         = useState<Plant | null>(null);
   const [showToast, setShowToast] = useState(false);
 
-  const btnScale    = useRef(new Animated.Value(1)).current;
+  const btnScale     = useRef(new Animated.Value(1)).current;
   const toastOpacity = useRef(new Animated.Value(0)).current;
 
   const load = useCallback(async () => {
@@ -128,24 +125,14 @@ export default function PlantDetailScreen() {
         Alert.alert('Permission needed', 'Camera access is required to take photos.');
         return;
       }
-      result = await ImagePicker.launchCameraAsync({
-        mediaTypes: 'images',
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
+      result = await ImagePicker.launchCameraAsync({ mediaTypes: 'images', allowsEditing: true, aspect: [1, 1], quality: 0.8 });
     } else {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permission needed', 'Photo library access is required to pick photos.');
         return;
       }
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'images',
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
+      result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: 'images', allowsEditing: true, aspect: [1, 1], quality: 0.8 });
     }
 
     if (!result.canceled) {
@@ -164,8 +151,7 @@ export default function PlantDetailScreen() {
     ];
     if (plant.photoUri) {
       buttons.push({
-        text: 'Remove Photo',
-        style: 'destructive',
+        text: 'Remove Photo', style: 'destructive',
         onPress: async () => {
           const updated = { ...plant, photoUri: undefined };
           await updatePlant(updated);
@@ -215,7 +201,7 @@ export default function PlantDetailScreen() {
   if (!plant) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingEmoji}>🌱</Text>
+        <Ionicons name="leaf-outline" size={60} color={Colors.primaryLight} />
         <Text style={styles.loadingText}>Loading plant…</Text>
       </View>
     );
@@ -225,26 +211,22 @@ export default function PlantDetailScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      {/* Gradient hero */}
       <LinearGradient
-        colors={['#1B4332', '#2D6A4F']}
+        colors={[Colors.primaryDark, Colors.primary]}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
         style={styles.hero}
       >
-        {/* Photo circle with edit button */}
         <View style={styles.heroPhotoWrapper}>
           <View style={styles.heroEmojiCircle}>
-            {plant.photoUri ? (
-              <Image source={{ uri: plant.photoUri }} style={styles.heroPhoto} />
-            ) : (
-              <Text style={styles.heroEmoji}>{plant.emoji ?? '🪴'}</Text>
-            )}
+            {plant.photoUri
+              ? <Image source={{ uri: plant.photoUri }} style={styles.heroPhoto} />
+              : <Text style={styles.heroEmoji}>{plant.emoji ?? '🪴'}</Text>
+            }
           </View>
           <TouchableOpacity style={styles.editPhotoBtn} onPress={showPhotoPicker} activeOpacity={0.85}>
             <Ionicons name="camera" size={15} color={Colors.primary} />
           </TouchableOpacity>
         </View>
-
         <Text style={styles.plantName}>{plant.name}</Text>
         <Text style={styles.plantType}>{plant.type}</Text>
       </LinearGradient>
@@ -252,22 +234,20 @@ export default function PlantDetailScreen() {
       <View style={styles.body}>
         <HealthBar plant={plant} />
 
-        {/* Info card */}
         <View style={styles.infoCard}>
           <Text style={styles.cardTitle}>Care Details</Text>
-          <InfoRow icon="🔁" label="Frequency"
+          <InfoRow icon="repeat" label="Frequency"
             value={plant.wateringFrequencyDays === 1 ? 'Every day' : `Every ${plant.wateringFrequencyDays} days`} />
           {plant.notes ? (
             <>
               <View style={styles.divider} />
-              <InfoRow icon="📝" label="Notes" value={plant.notes} />
+              <InfoRow icon="document-text-outline" label="Notes" value={plant.notes} />
             </>
           ) : null}
           <View style={styles.divider} />
-          <InfoRow icon="🌱" label="Added" value={formatDate(plant.createdAt)} />
+          <InfoRow icon="leaf-outline" label="Added" value={formatDate(plant.createdAt)} />
         </View>
 
-        {/* Water button with pulse */}
         <Animated.View style={{ transform: [{ scale: btnScale }] }}>
           <TouchableOpacity
             style={[styles.waterBtn, wateredToday && styles.waterBtnDone]}
@@ -275,23 +255,24 @@ export default function PlantDetailScreen() {
             disabled={wateredToday}
             activeOpacity={0.88}
           >
-            <Text style={styles.waterBtnText}>
-              {wateredToday ? '✅ Watered Today' : '💧 Mark as Watered Today'}
-            </Text>
+            <View style={styles.waterBtnContent}>
+              <Ionicons name={wateredToday ? 'checkmark-circle' : 'water'} size={20} color={Colors.white} />
+              <Text style={styles.waterBtnText}>
+                {wateredToday ? 'Watered Today' : 'Mark as Watered Today'}
+              </Text>
+            </View>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Success toast */}
         {showToast && (
           <Animated.View style={[styles.toast, {
             opacity: toastOpacity,
-            transform: [{ translateY: toastOpacity.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+            transform: [{ translateY: toastOpacity.interpolate({ inputRange: [0, 1], outputRange: [Spacing.sm, 0] }) }],
           }]}>
             <Text style={styles.toastText}>✓  Watered!</Text>
           </Animated.View>
         )}
 
-        {/* Delete */}
         <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete} activeOpacity={0.85}>
           <Text style={styles.deleteBtnText}>Remove Plant</Text>
         </TouchableOpacity>
@@ -300,44 +281,54 @@ export default function PlantDetailScreen() {
   );
 }
 
+const HERO_CIRCLE_SIZE = 100;
+const EDIT_BTN_SIZE    = 30;
+
 const styles = StyleSheet.create({
   container:        { flex: 1, backgroundColor: Colors.background },
   content:          { paddingBottom: Spacing.xxxl },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.background, gap: Spacing.md },
-  loadingEmoji:     { fontSize: 48 },
   loadingText:      { fontSize: Typography.fontSizeMD, color: Colors.textSecondary },
+
   hero:             { paddingTop: Spacing.xxl, paddingBottom: Spacing.xxxl, alignItems: 'center', gap: Spacing.sm },
   heroPhotoWrapper: { position: 'relative', marginBottom: Spacing.sm },
-  heroEmojiCircle:  { width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)', overflow: 'hidden' },
-  heroPhoto:        { width: 100, height: 100, borderRadius: 50 },
-  heroEmoji:        { fontSize: 54 },
-  editPhotoBtn:     { position: 'absolute', bottom: 0, right: -4, width: 30, height: 30, borderRadius: 15, backgroundColor: Colors.surface, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 4, borderWidth: 1.5, borderColor: Colors.border },
-  plantName:        { fontSize: Typography.fontSizeXXL, fontWeight: Typography.fontWeightBold, color: '#FFFFFF', textAlign: 'center' },
-  plantType:        { fontSize: Typography.fontSizeLG, color: 'rgba(255,255,255,0.75)' },
-  body:             { padding: Spacing.xl, gap: Spacing.lg, marginTop: -Spacing.xl },
-  healthCard:       { backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, padding: Spacing.lg, gap: Spacing.md, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
+  heroEmojiCircle:  { width: HERO_CIRCLE_SIZE, height: HERO_CIRCLE_SIZE, borderRadius: HERO_CIRCLE_SIZE / 2, backgroundColor: Colors.onDarkHandle, alignItems: 'center', justifyContent: 'center', borderWidth: Spacing.xxs, borderColor: Colors.onDarkHandle, overflow: 'hidden' },
+  heroPhoto:        { width: HERO_CIRCLE_SIZE, height: HERO_CIRCLE_SIZE, borderRadius: HERO_CIRCLE_SIZE / 2 },
+  heroEmoji:        { fontSize: Typography.fontSizeEmojiXL },
+  editPhotoBtn:     { position: 'absolute', bottom: 0, right: -Spacing.xs, width: EDIT_BTN_SIZE, height: EDIT_BTN_SIZE, borderRadius: EDIT_BTN_SIZE / 2, backgroundColor: Colors.surface, alignItems: 'center', justifyContent: 'center', shadowColor: Colors.black, shadowOffset: { width: 0, height: Spacing.xxs }, shadowOpacity: 0.2, shadowRadius: Spacing.xs, elevation: 4, borderWidth: 1.5, borderColor: Colors.border },
+  plantName:        { fontSize: Typography.fontSizeXXL, fontWeight: Typography.fontWeightBold, color: Colors.white, textAlign: 'center' },
+  plantType:        { fontSize: Typography.fontSizeLG, color: Colors.headerSubtitle },
+
+  body:             { padding: Spacing.xl, gap: Spacing.lg, marginTop: Spacing.md },
+
+  healthCard:       { backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, padding: Spacing.lg, gap: Spacing.md, shadowColor: Colors.black, shadowOffset: { width: 0, height: Spacing.xxs }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
   healthHeader:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.sm },
   healthTitle:      { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: Colors.primaryDark },
-  healthBadge:      { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: BorderRadius.full, paddingHorizontal: Spacing.sm, paddingVertical: 4 },
-  healthDot:        { width: 7, height: 7, borderRadius: 4 },
+  healthBadge:      { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: BorderRadius.full, paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xs },
+  healthDot:        { width: 7, height: 7, borderRadius: BorderRadius.xs + Spacing.xxs },
   healthBadgeText:  { fontSize: Typography.fontSizeXS, fontWeight: Typography.fontWeightSemiBold },
-  progressTrack:    { height: 10, borderRadius: 5, backgroundColor: Colors.surfaceSecondary, overflow: 'hidden' },
-  progressFill:     { height: '100%', borderRadius: 5 },
-  healthDates:      { gap: 2 },
+  progressTrack:    { height: 10, borderRadius: BorderRadius.xs + 3, backgroundColor: Colors.surfaceSecondary, overflow: 'hidden' },
+  progressFill:     { height: '100%', borderRadius: BorderRadius.xs + 3 },
+  healthDates:      { gap: Spacing.xxs },
   healthDateText:   { fontSize: Typography.fontSizeXS, color: Colors.textSecondary },
-  infoCard:         { backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, padding: Spacing.lg, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
+
+  infoCard:         { backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, padding: Spacing.lg, shadowColor: Colors.black, shadowOffset: { width: 0, height: Spacing.xxs }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
   cardTitle:        { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: Colors.primaryDark, marginBottom: Spacing.md },
   infoRow:          { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md, paddingVertical: Spacing.sm },
-  infoIcon:         { fontSize: 20, width: 28, textAlign: 'center' },
+  infoIcon:         { width: Spacing.xxl, textAlign: 'center' },
   infoTextBlock:    { flex: 1 },
   infoLabel:        { fontSize: Typography.fontSizeSM, color: Colors.textMuted, fontWeight: Typography.fontWeightMedium },
-  infoValue:        { fontSize: Typography.fontSizeMD, color: Colors.text, marginTop: 2 },
+  infoValue:        { fontSize: Typography.fontSizeMD, color: Colors.text, marginTop: Spacing.xxs },
   divider:          { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.xs },
-  waterBtn:         { backgroundColor: Colors.primary, borderRadius: BorderRadius.md, paddingVertical: 18, alignItems: 'center', shadowColor: Colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 6 },
+
+  waterBtn:         { backgroundColor: Colors.primary, borderRadius: BorderRadius.md, paddingVertical: Spacing.btnVertical, alignItems: 'center', shadowColor: Colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 6 },
   waterBtnDone:     { backgroundColor: Colors.primaryLight, shadowOpacity: 0, elevation: 0, opacity: 0.75 },
-  waterBtnText:     { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: '#FFFFFF', letterSpacing: 0.3 },
-  toast:            { alignSelf: 'center', backgroundColor: Colors.primaryDark, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: BorderRadius.full, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
-  toastText:        { color: '#FFFFFF', fontSize: Typography.fontSizeMD, fontWeight: Typography.fontWeightSemiBold },
-  deleteBtn:        { borderRadius: BorderRadius.md, paddingVertical: Spacing.lg, alignItems: 'center', borderWidth: 1.5, borderColor: '#FFCCC4', backgroundColor: '#FFF5F3' },
+  waterBtnContent:  { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  waterBtnText:     { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: Colors.white, letterSpacing: 0.3 },
+
+  toast:            { alignSelf: 'center', backgroundColor: Colors.primaryDark, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: BorderRadius.full, shadowColor: Colors.black, shadowOffset: { width: 0, height: Spacing.xs }, shadowOpacity: 0.2, shadowRadius: Spacing.sm, elevation: 6 },
+  toastText:        { color: Colors.white, fontSize: Typography.fontSizeMD, fontWeight: Typography.fontWeightSemiBold },
+
+  deleteBtn:        { borderRadius: BorderRadius.md, paddingVertical: Spacing.lg, alignItems: 'center', borderWidth: 1.5, borderColor: Colors.dangerBorder, backgroundColor: Colors.dangerSurface },
   deleteBtnText:    { fontSize: Typography.fontSizeMD, fontWeight: Typography.fontWeightSemiBold, color: Colors.danger },
 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ComponentProps, useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +20,8 @@ import {
 } from '../storage/plantStorage';
 import { Colors, BorderRadius, Spacing, Typography } from '../constants/theme';
 
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
+
 interface ReminderItem {
   plant: Plant;
   daysUntil: number;
@@ -27,11 +30,11 @@ interface ReminderItem {
 
 type SectionKey = 'overdue' | 'today' | 'soon' | 'upcoming';
 
-const SECTION_META: Record<SectionKey, { label: string; color: string; bg: string }> = {
-  overdue:  { label: '🚨 Overdue',       color: Colors.danger,  bg: '#FFF0EE' },
-  today:    { label: '💧 Water Today',    color: '#C8860A',      bg: '#FFF8E1' },
-  soon:     { label: '🔔 Coming Up Soon', color: '#A07A00',      bg: '#FFFBEB' },
-  upcoming: { label: '📅 Upcoming',       color: Colors.primary, bg: Colors.accentLight },
+const SECTION_META: Record<SectionKey, { label: string; icon: IoniconsName; color: string; bg: string }> = {
+  overdue:  { label: 'Overdue',        icon: 'alert-circle',     color: Colors.danger,      bg: Colors.dangerBgAlt  },
+  today:    { label: 'Water Today',    icon: 'water',            color: Colors.warningDark,  bg: Colors.warningBgAlt },
+  soon:     { label: 'Coming Up Soon', icon: 'time-outline',     color: Colors.warningSoon,  bg: Colors.warningBgFaint },
+  upcoming: { label: 'Upcoming',       icon: 'calendar-outline', color: Colors.primary,      bg: Colors.accentLight  },
 };
 
 function formatRelativeDate(days: number, date: Date): string {
@@ -64,7 +67,7 @@ function SectionHeader({ sectionKey, delay }: { sectionKey: SectionKey; delay: n
   return (
     <FadeRow delay={delay}>
       <View style={[styles.sectionHeader, { backgroundColor: meta.bg }]}>
-        <View style={[styles.sectionAccent, { backgroundColor: meta.color }]} />
+        <Ionicons name={meta.icon} size={14} color={meta.color} />
         <Text style={[styles.sectionTitle, { color: meta.color }]}>{meta.label}</Text>
       </View>
     </FadeRow>
@@ -105,7 +108,7 @@ function ReminderCard({
           onPress={onWater}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.waterBtnEmoji}>💧</Text>
+          <Ionicons name="water" size={18} color={Colors.water} />
           <Text style={[styles.waterBtnLabel, { color: meta.color }]}>Water</Text>
         </TouchableOpacity>
       </TouchableOpacity>
@@ -161,16 +164,13 @@ export default function RemindersScreen() {
   };
 
   const handlePlantPress = (plant: Plant) => {
-    (navigation as any).navigate('Home', {
-      screen: 'PlantDetail',
-      params: { plantId: plant.id },
-    });
+    (navigation as any).navigate('PlantDetail', { plantId: plant.id });
   };
 
   if (rows.length === 0) {
     return (
       <View style={[styles.empty, { paddingTop: insets.top + Spacing.xl }]}>
-        <Text style={styles.emptyEmoji}>🎉</Text>
+        <Ionicons name="checkmark-circle" size={72} color={Colors.success} />
         <Text style={styles.emptyTitle}>All caught up!</Text>
         <Text style={styles.emptySubtitle}>Add plants to see watering reminders here.</Text>
       </View>
@@ -180,7 +180,10 @@ export default function RemindersScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + Spacing.lg }]}>
-        <Text style={styles.pageTitle}>Reminders 🔔</Text>
+        <View style={styles.pageTitleRow}>
+          <Ionicons name="notifications" size={24} color={Colors.primaryDark} />
+          <Text style={styles.pageTitle}>Reminders</Text>
+        </View>
         <Text style={styles.pageSubtitle}>Your upcoming watering schedule</Text>
       </View>
       <FlatList
@@ -209,25 +212,23 @@ export default function RemindersScreen() {
 const styles = StyleSheet.create({
   container:    { flex: 1, backgroundColor: Colors.background },
   header:       { paddingHorizontal: Spacing.xl, paddingBottom: Spacing.lg },
+  pageTitleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   pageTitle:    { fontSize: Typography.fontSizeXXL, fontWeight: Typography.fontWeightBold, color: Colors.primaryDark },
   pageSubtitle: { fontSize: Typography.fontSizeMD, color: Colors.textSecondary, marginTop: Spacing.xs },
   list:         { paddingHorizontal: Spacing.xl, paddingBottom: Spacing.xxxl, gap: Spacing.sm },
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, borderRadius: BorderRadius.md, paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.md, marginBottom: 2 },
-  sectionAccent: { width: 3, height: 16, borderRadius: 2 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, borderRadius: BorderRadius.md, paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.md, marginBottom: Spacing.xxs },
   sectionTitle:  { fontSize: Typography.fontSizeSM, fontWeight: Typography.fontWeightBold, letterSpacing: 0.4, textTransform: 'uppercase' },
-  card:          { backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, flexDirection: 'row', alignItems: 'center', overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  cardBorder:    { width: 4, alignSelf: 'stretch' },
+  card:          { backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, flexDirection: 'row', alignItems: 'center', overflow: 'hidden', shadowColor: Colors.black, shadowOffset: { width: 0, height: Spacing.xxs }, shadowOpacity: 0.06, shadowRadius: Spacing.sm, elevation: 2 },
+  cardBorder:    { width: Spacing.xs, alignSelf: 'stretch' },
   emojiWrap:     { width: 44, height: 44, borderRadius: BorderRadius.md, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', justifyContent: 'center', marginLeft: Spacing.md },
-  emoji:         { fontSize: 24 },
+  emoji:         { fontSize: Typography.fontSizeEmojiMD },
   cardInfo:      { flex: 1, paddingVertical: Spacing.md, paddingHorizontal: Spacing.md, gap: Spacing.xs },
   plantName:     { fontSize: Typography.fontSizeMD, fontWeight: Typography.fontWeightSemiBold, color: Colors.text },
-  dateBadge:     { alignSelf: 'flex-start', borderRadius: BorderRadius.full, paddingHorizontal: Spacing.sm, paddingVertical: 2 },
+  dateBadge:     { alignSelf: 'flex-start', borderRadius: BorderRadius.full, paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xxs },
   dateText:      { fontSize: Typography.fontSizeXS, fontWeight: Typography.fontWeightSemiBold },
-  waterBtn:      { alignItems: 'center', justifyContent: 'center', gap: 2, paddingHorizontal: Spacing.md, paddingVertical: Spacing.md, marginRight: Spacing.sm, borderRadius: BorderRadius.md },
-  waterBtnEmoji: { fontSize: 20 },
-  waterBtnLabel: { fontSize: 10, fontWeight: Typography.fontWeightSemiBold },
+  waterBtn:      { alignItems: 'center', justifyContent: 'center', gap: Spacing.xs, paddingHorizontal: Spacing.md, paddingVertical: Spacing.md, marginRight: Spacing.sm, borderRadius: BorderRadius.md },
+  waterBtnLabel: { fontSize: Typography.fontSizeXXS, fontWeight: Typography.fontWeightSemiBold },
   empty:         { flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.xxxl, gap: Spacing.md },
-  emptyEmoji:    { fontSize: 72 },
   emptyTitle:    { fontSize: Typography.fontSizeXL, fontWeight: Typography.fontWeightBold, color: Colors.primaryDark, textAlign: 'center' },
   emptySubtitle: { fontSize: Typography.fontSizeMD, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
 });

@@ -1,31 +1,17 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeScreen from '../screens/HomeScreen';
 import AddPlantScreen from '../screens/AddPlantScreen';
 import PlantDetailScreen from '../screens/PlantDetailScreen';
 import RemindersScreen from '../screens/RemindersScreen';
+import GardenStatsScreen from '../screens/GardenStatsScreen';
 import { Colors, Typography } from '../constants/theme';
 
-const Tab = createBottomTabNavigator();
+const Tab   = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
-
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
-  return (
-    <Text
-      style={{
-        fontSize: 24,
-        lineHeight: 28,
-        includeFontPadding: false,
-        opacity: focused ? 1 : 0.45,
-      }}
-    >
-      {emoji}
-    </Text>
-  );
-}
 
 function HomeStack() {
   return (
@@ -55,6 +41,11 @@ function HomeStack() {
         name="PlantDetail"
         component={PlantDetailScreen}
         options={{ title: 'Plant Details', headerBackTitle: 'Garden' }}
+      />
+      <Stack.Screen
+        name="Reminders"
+        component={RemindersScreen}
+        options={{ title: 'Reminders', headerBackTitle: 'Garden', headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -99,16 +90,20 @@ export default function AppNavigator() {
         options={{
           title: 'My Garden',
           headerShown: false,
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🌿" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? 'leaf' : 'leaf-outline'} size={24} color={color} />
+          ),
         }}
       />
       <Tab.Screen
-        name="Reminders"
-        component={RemindersScreen}
+        name="Stats"
+        component={GardenStatsScreen}
         options={{
-          title: 'Reminders',
+          title: 'Stats',
           headerShown: false,
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} size={24} color={color} />
+          ),
         }}
       />
     </Tab.Navigator>

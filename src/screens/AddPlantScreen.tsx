@@ -36,15 +36,14 @@ const FREQUENCY_PRESETS = [
 ];
 
 const DIFFICULTY_META = {
-  easy:   { label: 'Easy',   bg: 'rgba(82,183,136,0.2)',  color: '#74C69D' },
-  medium: { label: 'Medium', bg: 'rgba(233,196,106,0.2)', color: '#E9C46A' },
-  hard:   { label: 'Hard',   bg: 'rgba(231,111,81,0.2)',  color: '#E76F51' },
+  easy:   { label: 'Easy',   bg: `${Colors.primaryLight}33`,  color: Colors.accent   },
+  medium: { label: 'Medium', bg: `${Colors.warning}33`,       color: Colors.warning  },
+  hard:   { label: 'Hard',   bg: `${Colors.danger}33`,        color: Colors.danger   },
 };
 
-const SHEET_BG   = '#0d1f1a';
-// Used only as the animation start/end offset — large enough to keep the
-// sheet fully below the screen regardless of its dynamic content height.
-const SHEET_HEIGHT = 420;
+// Used only as animation start/end offset — large enough to keep the sheet
+// fully below the screen regardless of its dynamic content height.
+const SHEET_ANIM_OFFSET = 420;
 
 function closestFrequency(days: number): number {
   return FREQUENCY_PRESETS.reduce((prev, curr) =>
@@ -54,7 +53,7 @@ function closestFrequency(days: number): number {
 
 function FadeSection({ delay, children }: { delay: number; children: React.ReactNode }) {
   const opacity    = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(16)).current;
+  const translateY = useRef(new Animated.Value(Spacing.lg)).current;
   useEffect(() => {
     Animated.parallel([
       Animated.timing(opacity,    { toValue: 1, duration: 350, delay, useNativeDriver: true }),
@@ -67,6 +66,8 @@ function FadeSection({ delay, children }: { delay: number; children: React.React
     </Animated.View>
   );
 }
+
+const CARD_SIZE = 88;
 
 function EmojiCard({ type, emoji, selected, onPress, size }: {
   type: string; emoji: string; selected: boolean; onPress: () => void; size: number;
@@ -98,8 +99,6 @@ function EmojiCard({ type, emoji, selected, onPress, size }: {
   );
 }
 
-const CARD_SIZE = 88;
-
 export default function AddPlantScreen() {
   const navigation = useNavigation();
   const { width }  = useWindowDimensions();
@@ -116,23 +115,18 @@ export default function AddPlantScreen() {
   const [cardSuggestion, setCardSuggestion] = useState<PlantCareSuggestion | null>(null);
   const [cardVisible, setCardVisible]       = useState(false);
 
-  // Sheet animations
-  const slideAnim   = useRef(new Animated.Value(SHEET_HEIGHT)).current;
+  const slideAnim   = useRef(new Animated.Value(SHEET_ANIM_OFFSET)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
-  // Content stagger
   const headerAnim  = useRef(new Animated.Value(0)).current;
   const dividerAnim = useRef(new Animated.Value(0)).current;
   const tipAnim     = useRef(new Animated.Value(0)).current;
   const freqAnim    = useRef(new Animated.Value(0)).current;
   const actionsAnim = useRef(new Animated.Value(0)).current;
-  // Pulsing dot
   const pulseAnim   = useRef(new Animated.Value(1)).current;
-  // Shimmer
   const shimmerAnim = useRef(new Animated.Value(-180)).current;
 
   const requestIdRef = useRef(0);
 
-  // Stars pop/glow — bouncy spring pop then settle, loops while card is visible
   useEffect(() => {
     if (!cardVisible) return;
     pulseAnim.setValue(1);
@@ -147,7 +141,6 @@ export default function AddPlantScreen() {
     return () => loop.stop();
   }, [cardVisible]);
 
-  // Shimmer — sweeps across the top strip, loops
   useEffect(() => {
     if (!cardVisible) return;
     shimmerAnim.setValue(-180);
@@ -160,15 +153,11 @@ export default function AddPlantScreen() {
 
   const showSheet = () => {
     setCardVisible(true);
-    // Reset stagger
     [headerAnim, dividerAnim, tipAnim, freqAnim, actionsAnim].forEach(a => a.setValue(0));
-
     Animated.parallel([
       Animated.timing(overlayAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, friction: 8, tension: 60, velocity: 2 }),
     ]).start();
-
-    // Staggered content fade-in
     Animated.stagger(110, [
       Animated.timing(headerAnim,  { toValue: 1, duration: 320, delay: 220, useNativeDriver: true }),
       Animated.timing(dividerAnim, { toValue: 1, duration: 280, delay: 220, useNativeDriver: true }),
@@ -181,11 +170,11 @@ export default function AddPlantScreen() {
   const dismissSheet = () => {
     Animated.parallel([
       Animated.timing(overlayAnim, { toValue: 0, duration: 250, useNativeDriver: true }),
-      Animated.timing(slideAnim,   { toValue: SHEET_HEIGHT, duration: 280, useNativeDriver: true }),
+      Animated.timing(slideAnim,   { toValue: SHEET_ANIM_OFFSET, duration: 280, useNativeDriver: true }),
     ]).start(() => {
       setCardVisible(false);
       setCardSuggestion(null);
-      slideAnim.setValue(SHEET_HEIGHT);
+      slideAnim.setValue(SHEET_ANIM_OFFSET);
     });
   };
 
@@ -197,12 +186,11 @@ export default function AddPlantScreen() {
     dismissSheet();
   };
 
-  // ONLY entry point for the Gemini API — never called from typing/useEffect
   const triggerSuggestion = async (selectedType: string, plantName: string) => {
     const myId = ++requestIdRef.current;
     try {
       const result = await getPlantCareSuggestion(plantName, selectedType);
-      if (requestIdRef.current !== myId) return; // discard stale response
+      if (requestIdRef.current !== myId) return;
       setCardSuggestion(result);
       showSheet();
     } catch {
@@ -211,25 +199,18 @@ export default function AddPlantScreen() {
   };
 
   const handleTypeSelect = (selectedType: string) => {
-    // Capture name at tap time so a slow network response always uses
-    // the name the user had when they tapped, not a later value.
     const plantName = name.trim();
-
-    // Skip if tapping the already-selected type with no sheet open —
-    // avoids duplicate API calls on rapid double-taps.
     if (selectedType === type && !cardVisible) return;
-
     if (cardVisible) {
       Animated.parallel([
         Animated.timing(overlayAnim, { toValue: 0, duration: 180, useNativeDriver: true }),
-        Animated.timing(slideAnim,   { toValue: SHEET_HEIGHT, duration: 200, useNativeDriver: true }),
+        Animated.timing(slideAnim,   { toValue: SHEET_ANIM_OFFSET, duration: 200, useNativeDriver: true }),
       ]).start(() => {
         setCardVisible(false);
         setCardSuggestion(null);
-        slideAnim.setValue(SHEET_HEIGHT);
+        slideAnim.setValue(SHEET_ANIM_OFFSET);
       });
     }
-
     setType(selectedType);
     triggerSuggestion(selectedType, plantName);
   };
@@ -264,12 +245,15 @@ export default function AddPlantScreen() {
     if (!type)        { Alert.alert('Missing info', 'Please select a plant type.');          return; }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setSaving(true);
+    const initialLastWatered = new Date();
+    initialLastWatered.setDate(initialLastWatered.getDate() - frequencyDays);
+
     const plant: Plant = {
       id: generateId(),
       name: name.trim(),
       type,
       wateringFrequencyDays: frequencyDays,
-      lastWatered: new Date().toISOString(),
+      lastWatered: initialLastWatered.toISOString(),
       notes: notes.trim() || undefined,
       emoji: getPlantEmoji(type),
       photoUri,
@@ -297,7 +281,6 @@ export default function AddPlantScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Hero */}
           <FadeSection delay={0}>
             <View style={styles.hero}>
               <TouchableOpacity style={styles.heroBubbleOuter} onPress={showPhotoPicker} activeOpacity={0.85}>
@@ -307,7 +290,7 @@ export default function AddPlantScreen() {
                     : <Text style={styles.heroEmoji}>{type ? getPlantEmoji(type) : '🪴'}</Text>}
                 </View>
                 <View style={styles.heroCameraBtn}>
-                  <Ionicons name="camera" size={14} color="#fff" />
+                  <Ionicons name="camera" size={14} color={Colors.white} />
                 </View>
               </TouchableOpacity>
               <Text style={styles.pageTitle}>Add a Plant</Text>
@@ -315,7 +298,6 @@ export default function AddPlantScreen() {
             </View>
           </FadeSection>
 
-          {/* Name */}
           <FadeSection delay={80}>
             <View style={styles.section}>
               <Text style={styles.label}>Plant Name</Text>
@@ -329,7 +311,6 @@ export default function AddPlantScreen() {
             </View>
           </FadeSection>
 
-          {/* Type grid */}
           <FadeSection delay={150}>
             <View style={styles.section}>
               <View style={styles.typeLabelRow}>
@@ -349,7 +330,6 @@ export default function AddPlantScreen() {
             </View>
           </FadeSection>
 
-          {/* Frequency */}
           <FadeSection delay={220}>
             <View style={styles.section}>
               <Text style={styles.label}>Watering Frequency</Text>
@@ -369,7 +349,6 @@ export default function AddPlantScreen() {
             </View>
           </FadeSection>
 
-          {/* Notes */}
           <FadeSection delay={290}>
             <View style={styles.section}>
               <Text style={styles.label}>Notes (optional)</Text>
@@ -383,7 +362,6 @@ export default function AddPlantScreen() {
             </View>
           </FadeSection>
 
-          {/* Save */}
           <FadeSection delay={360}>
             <TouchableOpacity
               style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
@@ -396,7 +374,6 @@ export default function AddPlantScreen() {
           <View style={{ height: 120 }} />
         </ScrollView>
 
-        {/* ── Dark overlay ── */}
         {cardVisible && (
           <Animated.View
             pointerEvents="box-none"
@@ -406,28 +383,24 @@ export default function AddPlantScreen() {
           </Animated.View>
         )}
 
-        {/* ── AI Suggestion bottom sheet ── */}
         {cardVisible && cardSuggestion && (
           <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }] }]}>
 
-            {/* Animated shimmer strip across the top */}
             <View style={styles.shimmerContainer}>
               <Animated.View style={{ transform: [{ translateX: shimmerAnim }] }}>
                 <LinearGradient
-                  colors={['transparent', 'rgba(82,183,136,0.45)', 'rgba(116,198,157,0.6)', 'rgba(82,183,136,0.45)', 'transparent']}
+                  colors={['transparent', Colors.sheetBorder, `${Colors.sheetFreqText}`, Colors.sheetBorder, 'transparent']}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                   style={{ width: 180, height: 3 }}
                 />
               </Animated.View>
             </View>
 
-            {/* Drag handle */}
             <View style={styles.sheetHandle} />
 
-            {/* Header: pulsing dot + title + difficulty */}
             <Animated.View style={[styles.sheetHeader, {
               opacity: headerAnim,
-              transform: [{ translateY: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+              transform: [{ translateY: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [Spacing.sm, 0] }) }],
             }]}>
               <View style={styles.aiTitleRow}>
                 <Animated.View style={{
@@ -447,10 +420,8 @@ export default function AddPlantScreen() {
               )}
             </Animated.View>
 
-            {/* Glowing divider */}
             <Animated.View style={[styles.glowDivider, { opacity: dividerAnim }]} />
 
-            {/* Tip */}
             <Animated.Text style={[styles.sheetTip, {
               opacity: tipAnim,
               transform: [{ translateY: tipAnim.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
@@ -458,7 +429,6 @@ export default function AddPlantScreen() {
               {cardSuggestion.tip}
             </Animated.Text>
 
-            {/* Frequency */}
             <Animated.Text style={[styles.sheetFreq, {
               opacity: freqAnim,
               transform: [{ translateY: freqAnim.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
@@ -466,14 +436,13 @@ export default function AddPlantScreen() {
               {freqLabel}
             </Animated.Text>
 
-            {/* Actions */}
             <Animated.View style={[styles.sheetActions, {
               opacity: actionsAnim,
-              transform: [{ translateY: actionsAnim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+              transform: [{ translateY: actionsAnim.interpolate({ inputRange: [0, 1], outputRange: [Spacing.sm, 0] }) }],
             }]}>
               <TouchableOpacity onPress={applyAndDismiss} activeOpacity={0.88} style={styles.applyBtnWrapper}>
                 <LinearGradient
-                  colors={['#52B788', '#2D6A4F']}
+                  colors={[Colors.primaryLight, Colors.primary]}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                   style={styles.applyBtn}
                 >
@@ -492,16 +461,19 @@ export default function AddPlantScreen() {
   );
 }
 
+const HERO_BUBBLE_SIZE  = 96;
+const CAMERA_BTN_SIZE   = 28;
+
 const styles = StyleSheet.create({
   scroll:  { flex: 1 },
   content: { padding: Spacing.xl, paddingBottom: Spacing.xxxl, gap: Spacing.xl },
 
   hero:            { alignItems: 'center', paddingVertical: Spacing.lg, gap: Spacing.sm },
   heroBubbleOuter: { position: 'relative', marginBottom: Spacing.xs },
-  heroEmojiBubble: { width: 96, height: 96, borderRadius: 48, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.border, overflow: 'hidden' },
-  heroBubblePhoto: { width: 96, height: 96, borderRadius: 48 },
-  heroEmoji:       { fontSize: 46 },
-  heroCameraBtn:   { position: 'absolute', bottom: 2, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.surface },
+  heroEmojiBubble: { width: HERO_BUBBLE_SIZE, height: HERO_BUBBLE_SIZE, borderRadius: HERO_BUBBLE_SIZE / 2, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', justifyContent: 'center', borderWidth: Spacing.xxs, borderColor: Colors.border, overflow: 'hidden' },
+  heroBubblePhoto: { width: HERO_BUBBLE_SIZE, height: HERO_BUBBLE_SIZE, borderRadius: HERO_BUBBLE_SIZE / 2 },
+  heroEmoji:       { fontSize: Typography.fontSizeEmojiHero },
+  heroCameraBtn:   { position: 'absolute', bottom: Spacing.xxs, right: 0, width: CAMERA_BTN_SIZE, height: CAMERA_BTN_SIZE, borderRadius: CAMERA_BTN_SIZE / 2, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', borderWidth: Spacing.xxs, borderColor: Colors.surface },
   pageTitle:       { fontSize: Typography.fontSizeXXL, fontWeight: Typography.fontWeightBold, color: Colors.primaryDark },
   pageSubtitle:    { fontSize: Typography.fontSizeMD, color: Colors.textSecondary },
 
@@ -510,72 +482,67 @@ const styles = StyleSheet.create({
   typeLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   typeHint:     { fontSize: Typography.fontSizeXS, color: Colors.textMuted, fontStyle: 'italic' },
   input:        { backgroundColor: Colors.surface, borderRadius: BorderRadius.md, borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md, fontSize: Typography.fontSizeMD, color: Colors.text },
-  notesInput:   { height: 88 },
+  notesInput:   { height: CARD_SIZE },
 
   emojiGrid:              { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  emojiCard:              { borderRadius: BorderRadius.md, backgroundColor: Colors.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.border, gap: 4, position: 'relative' },
+  emojiCard:              { borderRadius: BorderRadius.md, backgroundColor: Colors.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.border, gap: Spacing.xs, position: 'relative' },
   emojiCardSelected:      { backgroundColor: Colors.primaryDark, borderColor: Colors.primaryDark },
   emojiCardIcon:          { fontSize: 30 },
-  emojiCardLabel:         { fontSize: 11, fontWeight: Typography.fontWeightMedium, color: Colors.textSecondary },
-  emojiCardLabelSelected: { color: 'rgba(255,255,255,0.85)' },
-  checkBadge:             { position: 'absolute', top: 5, right: 5, width: 16, height: 16, borderRadius: 8, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
-  checkBadgeText:         { fontSize: 9, color: '#fff', fontWeight: '700' },
+  emojiCardLabel:         { fontSize: Typography.fontSizeXS, fontWeight: Typography.fontWeightMedium, color: Colors.textSecondary },
+  emojiCardLabelSelected: { color: Colors.onDarkSubtle },
+  checkBadge:             { position: 'absolute', top: Spacing.xs, right: Spacing.xs, width: 16, height: 16, borderRadius: Spacing.sm, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
+  checkBadgeText:         { fontSize: Typography.fontSizeTiny, color: Colors.white, fontWeight: Typography.fontWeightBold },
 
   frequencyGrid:        { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   freqChip:             { borderRadius: BorderRadius.full, paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.surface },
   freqChipSelected:     { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryLight },
   freqChipText:         { fontSize: Typography.fontSizeSM, fontWeight: Typography.fontWeightMedium, color: Colors.textSecondary },
-  freqChipTextSelected: { color: '#FFFFFF' },
+  freqChipTextSelected: { color: Colors.white },
 
-  saveBtn:         { backgroundColor: Colors.primary, borderRadius: BorderRadius.md, paddingVertical: 18, alignItems: 'center', shadowColor: Colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 6 },
+  saveBtn:         { backgroundColor: Colors.primary, borderRadius: BorderRadius.md, paddingVertical: Spacing.btnVertical, alignItems: 'center', shadowColor: Colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 6 },
   saveBtnDisabled: { opacity: 0.6, shadowOpacity: 0, elevation: 0 },
-  saveBtnText:     { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: '#FFFFFF', letterSpacing: 0.3 },
+  saveBtnText:     { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: Colors.white, letterSpacing: 0.3 },
 
-  // Overlay
-  overlay: { backgroundColor: 'rgba(0,0,0,0.55)' },
+  overlay: { backgroundColor: Colors.overlayDark },
 
-  // AI Bottom sheet
   sheet: {
     position: 'absolute',
     bottom: 0, left: 0, right: 0,
-    backgroundColor: SHEET_BG,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: Colors.darkSurface,
+    borderTopLeftRadius:  BorderRadius.xxl,
+    borderTopRightRadius: BorderRadius.xxl,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.xxl,
     gap: Spacing.md,
-    // Glowing border on top edges
-    borderTopWidth: 1.5,
-    borderLeftWidth: 1.5,
-    borderRightWidth: 1.5,
-    borderColor: 'rgba(82,183,136,0.45)',
-    shadowColor: '#52B788',
+    borderTopWidth: 1.5, borderLeftWidth: 1.5, borderRightWidth: 1.5,
+    borderColor: Colors.sheetBorder,
+    shadowColor: Colors.primaryLight,
     shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.35,
-    shadowRadius: 20,
+    shadowRadius: Spacing.xl,
     elevation: 16,
   },
   shimmerContainer: {
     position: 'absolute',
     top: 0, left: 0, right: 0,
     height: 3,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    borderTopLeftRadius:  BorderRadius.xxl,
+    borderTopRightRadius: BorderRadius.xxl,
     overflow: 'hidden',
   },
-  sheetHandle:  { width: 38, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.15)', alignSelf: 'center', marginTop: Spacing.md },
+  sheetHandle:  { width: 38, height: Spacing.xs, borderRadius: BorderRadius.xs, backgroundColor: Colors.onDarkHandle, alignSelf: 'center', marginTop: Spacing.md },
   sheetHeader:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   aiTitleRow:   { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  starsEmoji:   { fontSize: 20 },
-  sheetTitle:   { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: '#FFFFFF' },
-  difficultyBadge: { borderRadius: BorderRadius.full, paddingHorizontal: Spacing.md, paddingVertical: 4 },
+  starsEmoji:   { fontSize: Typography.fontSizeXL },
+  sheetTitle:   { fontSize: Typography.fontSizeLG, fontWeight: Typography.fontWeightBold, color: Colors.white },
+  difficultyBadge: { borderRadius: BorderRadius.full, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs },
   difficultyText:  { fontSize: Typography.fontSizeXS, fontWeight: Typography.fontWeightBold },
-  glowDivider:  { height: 1, backgroundColor: 'rgba(82,183,136,0.35)', shadowColor: '#52B788', shadowOpacity: 0.8, shadowRadius: 4, shadowOffset: { width: 0, height: 0 } },
-  sheetTip:     { fontSize: Typography.fontSizeMD, color: 'rgba(255,255,255,0.88)', lineHeight: 22 },
-  sheetFreq:    { fontSize: Typography.fontSizeSM, color: 'rgba(116,198,157,0.9)', fontWeight: Typography.fontWeightMedium },
+  glowDivider:  { height: 1, backgroundColor: Colors.sheetGlow, shadowColor: Colors.primaryLight, shadowOpacity: 0.8, shadowRadius: Spacing.xs, shadowOffset: { width: 0, height: 0 } },
+  sheetTip:     { fontSize: Typography.fontSizeMD, color: Colors.onDarkSubtle, lineHeight: 22 },
+  sheetFreq:    { fontSize: Typography.fontSizeSM, color: Colors.sheetFreqText, fontWeight: Typography.fontWeightMedium },
   sheetActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.lg, marginTop: Spacing.xs },
   applyBtnWrapper: { flex: 1 },
-  applyBtn:     { borderRadius: BorderRadius.md, paddingVertical: 14, alignItems: 'center', shadowColor: '#52B788', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 8 },
-  applyBtnText: { fontSize: Typography.fontSizeMD, fontWeight: Typography.fontWeightBold, color: '#FFFFFF', letterSpacing: 0.3 },
-  dismissText:  { fontSize: Typography.fontSizeSM, color: 'rgba(255,255,255,0.4)', fontWeight: Typography.fontWeightMedium },
+  applyBtn:     { borderRadius: BorderRadius.md, paddingVertical: 14, alignItems: 'center', shadowColor: Colors.primaryLight, shadowOffset: { width: 0, height: Spacing.xs }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 8 },
+  applyBtnText: { fontSize: Typography.fontSizeMD, fontWeight: Typography.fontWeightBold, color: Colors.white, letterSpacing: 0.3 },
+  dismissText:  { fontSize: Typography.fontSizeSM, color: Colors.onDarkMuted, fontWeight: Typography.fontWeightMedium },
 });

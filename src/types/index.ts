@@ -12,6 +12,12 @@ export interface Plant {
 
 export type RootTabParamList = {
   Home: undefined;
+  Stats: undefined;
+};
+
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  AddPlant: undefined;
   PlantDetail: { plantId: string };
   Reminders: undefined;
 };

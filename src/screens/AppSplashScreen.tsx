@@ -19,40 +19,30 @@ import Svg, {
   Pattern,
   Rect,
 } from 'react-native-svg';
+import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 
 // Layout constants — derived from the HTML design proportions
-const WAVE_H = SH * 0.44; // green crown covers ~44% of screen
-const BLOOM_S = Math.min(SW * 0.58, 230); // bloom diameter
-const BLOOM_LIFT = 45; // how many px above the wave boundary
-const BLOOM_TOP = WAVE_H - BLOOM_S / 2 - BLOOM_LIFT;
+const WAVE_H    = SH * 0.44;
+const BLOOM_S   = Math.min(SW * 0.58, 230);
+const BLOOM_LIFT = 45;
+const BLOOM_TOP  = WAVE_H - BLOOM_S / 2 - BLOOM_LIFT;
 const CONTENT_TOP = WAVE_H + BLOOM_S / 2 - BLOOM_LIFT + 14;
 
-const C = {
-  primary:      '#2D6A4F',
-  primaryLight: '#52B788',
-  primaryDark:  '#1B4332',
-  accent:       '#74C69D',
-  accentLight:  '#B7E4C7',
-  bg:           '#F8FFF9',
-  warn:         '#E9C46A',
-  textMuted:    '#95B8A0',
-};
-
-// ─── Bloom ───────────────────────────────────────────────────────────────────
+// ─── Bloom ──────────────────────────────────────────────────────���────────────
 function Bloom({ size }: { size: number }) {
   const angles = [0, 60, 120, 180, 240, 300];
   return (
     <Svg width={size} height={size} viewBox="0 0 200 200">
       <Defs>
         <RadialGradient id="petal" cx="30%" cy="30%" r="70%">
-          <Stop offset="0%" stopColor={C.accentLight} />
-          <Stop offset="100%" stopColor={C.accent} />
+          <Stop offset="0%" stopColor={Colors.accentLight} />
+          <Stop offset="100%" stopColor={Colors.accent} />
         </RadialGradient>
         <RadialGradient id="cg" cx="50%" cy="40%" r="60%">
-          <Stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
-          <Stop offset="100%" stopColor={C.warn} stopOpacity="0" />
+          <Stop offset="0%" stopColor={Colors.white} stopOpacity="0.3" />
+          <Stop offset="100%" stopColor={Colors.warning} stopOpacity="0" />
         </RadialGradient>
       </Defs>
       <G>
@@ -70,11 +60,11 @@ function Bloom({ size }: { size: number }) {
             />
           );
         })}
-        <Circle cx="100" cy="100" r="26" fill={C.warn} />
+        <Circle cx="100" cy="100" r="26" fill={Colors.warning} />
         <Circle cx="100" cy="100" r="26" fill="url(#cg)" />
         <Path
           d="M100 112 C93 100 93 88 100 85 C107 88 107 100 100 112Z"
-          fill={C.primaryDark}
+          fill={Colors.primaryDark}
           opacity="0.5"
         />
       </G>
@@ -82,15 +72,12 @@ function Bloom({ size }: { size: number }) {
   );
 }
 
-// ─── Wave crown (SVG — exact HTML path, scaled to device) ────────────────────
-// HTML: viewBox "0 0 390 310", rect height 260, wave path M0 240 Q97 210 195 228 Q293 246 390 218
-// We extend the SVG height below WAVE_H so the wave tail clips cleanly
+// ─── Wave crown ────────────────────��────────────────────────────��────────────
 function WaveSvg() {
-  const svgH = WAVE_H * (310 / 260); // proportional extra space for the wave tail
-  const sx   = SW  / 390;            // x scale to device width
-  const sy   = svgH / 310;           // y scale to svg height
+  const svgH = WAVE_H * (310 / 260);
+  const sx   = SW  / 390;
+  const sy   = svgH / 310;
 
-  // Scaled wave path (S-curve across the bottom of the green section)
   const wavePath = [
     `M0 ${240 * sy}`,
     `Q${97  * sx} ${210 * sy}`,
@@ -105,25 +92,23 @@ function WaveSvg() {
     <Svg width={SW} height={svgH}>
       <Defs>
         <SvgLinearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0%"   stopColor="#1B4332" />
+          <Stop offset="0%"   stopColor={Colors.primaryDark} />
           <Stop offset="100%" stopColor="#1e5c3a" />
         </SvgLinearGradient>
       </Defs>
-      {/* Solid gradient fill */}
       <Rect x={0} y={0} width={SW} height={svgH} fill="url(#wg)" />
-      {/* White wave cutout identical to HTML design */}
-      <Path d={wavePath} fill={C.bg} />
+      <Path d={wavePath} fill={Colors.background} />
     </Svg>
   );
 }
 
-// ─── Dot grid ────────────────────────────────────────────────────────────────
+// ─── Dot grid ───────────────────────────────────────────────���────────────────
 function DotGrid() {
   return (
     <Svg style={StyleSheet.absoluteFillObject} width={SW} height={SH} pointerEvents="none">
       <Defs>
         <Pattern id="dots" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
-          <Circle cx="11" cy="11" r="1.2" fill={C.accent} opacity="0.18" />
+          <Circle cx="11" cy="11" r="1.2" fill={Colors.accent} opacity="0.18" />
         </Pattern>
       </Defs>
       <Rect width={SW} height={SH} fill="url(#dots)" />
@@ -131,7 +116,7 @@ function DotGrid() {
   );
 }
 
-// ─── Loading dots ─────────────────────────────────────────────────────────────
+// ─── Loading dots ─────────────────────────────────────────────────────���───────
 function LoadingDots() {
   const a0 = useRef(new Animated.Value(0.35)).current;
   const a1 = useRef(new Animated.Value(0.35)).current;
@@ -157,8 +142,8 @@ function LoadingDots() {
   const dot = (a: Animated.Value, primary: boolean) => (
     <Animated.View
       style={{
-        width: 7, height: 7, borderRadius: 4,
-        backgroundColor: primary ? C.primary : C.accentLight,
+        width: 7, height: 7, borderRadius: BorderRadius.xs + Spacing.xxs,
+        backgroundColor: primary ? Colors.primary : Colors.accentLight,
         opacity: a,
         transform: [{ scale: a }],
       }}
@@ -178,16 +163,16 @@ function LoadingDots() {
 interface Props { onDone: () => void; }
 
 export default function AppSplashScreen({ onDone }: Props) {
-  const waveY     = useRef(new Animated.Value(-WAVE_H * 0.3)).current;
-  const bloomS    = useRef(new Animated.Value(0.3)).current;
-  const bloomO    = useRef(new Animated.Value(0)).current;
-  const logoO     = useRef(new Animated.Value(0)).current;
-  const logoY     = useRef(new Animated.Value(18)).current;
-  const taglineO  = useRef(new Animated.Value(0)).current;
-  const taglineY  = useRef(new Animated.Value(18)).current;
-  const subO      = useRef(new Animated.Value(0)).current;
-  const subY      = useRef(new Animated.Value(18)).current;
-  const screenO   = useRef(new Animated.Value(1)).current;
+  const waveY    = useRef(new Animated.Value(-WAVE_H * 0.3)).current;
+  const bloomS   = useRef(new Animated.Value(0.3)).current;
+  const bloomO   = useRef(new Animated.Value(0)).current;
+  const logoO    = useRef(new Animated.Value(0)).current;
+  const logoY    = useRef(new Animated.Value(18)).current;
+  const taglineO = useRef(new Animated.Value(0)).current;
+  const taglineY = useRef(new Animated.Value(18)).current;
+  const subO     = useRef(new Animated.Value(0)).current;
+  const subY     = useRef(new Animated.Value(18)).current;
+  const screenO  = useRef(new Animated.Value(1)).current;
 
   const fade = (o: Animated.Value, y: Animated.Value, delay: number) =>
     Animated.sequence([
@@ -199,10 +184,8 @@ export default function AppSplashScreen({ onDone }: Props) {
     ]);
 
   useEffect(() => {
-    // Wave slides down
     Animated.timing(waveY, { toValue: 0, duration: 550, useNativeDriver: true }).start();
 
-    // Bloom springs in at 220ms
     Animated.sequence([
       Animated.delay(220),
       Animated.parallel([
@@ -211,12 +194,10 @@ export default function AppSplashScreen({ onDone }: Props) {
       ]),
     ]).start();
 
-    // Staggered text
     fade(logoO,    logoY,    520).start();
     fade(taglineO, taglineY, 700).start();
     fade(subO,     subY,     860).start();
 
-    // Fade out at 3.2 s → call onDone
     Animated.sequence([
       Animated.delay(3200),
       Animated.timing(screenO, { toValue: 0, duration: 480, useNativeDriver: true }),
@@ -226,71 +207,43 @@ export default function AppSplashScreen({ onDone }: Props) {
   return (
     <Animated.View style={[styles.root, { opacity: screenO }]}>
       <StatusBar barStyle="light-content" />
-
-      {/* Dot grid */}
       <DotGrid />
 
-      {/* Green crown wave — SVG path, slides down from above */}
-      <Animated.View
-        style={[styles.wave, { transform: [{ translateY: waveY }] }]}
-        pointerEvents="none"
-      >
+      <Animated.View style={[styles.wave, { transform: [{ translateY: waveY }] }]} pointerEvents="none">
         <WaveSvg />
       </Animated.View>
 
-      {/* Bloom — centered exactly on the wave boundary */}
-      <Animated.View
-        style={[
-          styles.bloom,
-          {
-            opacity:   bloomO,
-            transform: [{ scale: bloomS }],
-          },
-        ]}
-      >
+      <Animated.View style={[styles.bloom, { opacity: bloomO, transform: [{ scale: bloomS }] }]}>
         <Bloom size={BLOOM_S} />
       </Animated.View>
 
-      {/* Content block — starts just below the bloom */}
       <View style={styles.content}>
-        {/* Wordmark */}
-        <Animated.View
-          style={[styles.wordmark, { opacity: logoO, transform: [{ translateY: logoY }] }]}
-        >
+        <Animated.View style={[styles.wordmark, { opacity: logoO, transform: [{ translateY: logoY }] }]}>
           <Text style={styles.wordFlora}>Flora</Text>
           <View style={styles.aiBadge}>
             <Text style={styles.aiText}>AI</Text>
           </View>
         </Animated.View>
 
-        {/* PLANT CARE */}
         <Animated.View style={{ opacity: logoO, transform: [{ translateY: logoY }] }}>
           <Text style={styles.plantCareLabel}>Plant Care</Text>
         </Animated.View>
 
-        {/* Divider */}
         <Animated.View style={[styles.divider, { opacity: logoO }]} />
 
-        {/* Tagline */}
-        <Animated.View
-          style={{ opacity: taglineO, transform: [{ translateY: taglineY }] }}
-        >
+        <Animated.View style={{ opacity: taglineO, transform: [{ translateY: taglineY }] }}>
           <Text style={styles.tagline}>
             Your plants,{'\n'}always cared for.
           </Text>
         </Animated.View>
 
-        {/* Sub-copy */}
-        <Animated.View
-          style={[styles.subWrap, { opacity: subO, transform: [{ translateY: subY }] }]}
-        >
+        <Animated.View style={[styles.subWrap, { opacity: subO, transform: [{ translateY: subY }] }]}>
           <Text style={styles.subCopy}>
             Smart watering reminders, care tips,{'\n'}and plant health — all in one place.
           </Text>
         </Animated.View>
       </View>
 
-      {/* Loading dots */}
       <LoadingDots />
     </Animated.View>
   );
@@ -299,111 +252,80 @@ export default function AppSplashScreen({ onDone }: Props) {
 const styles = StyleSheet.create({
   root: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: C.bg,
+    backgroundColor: Colors.background,
     overflow: 'hidden',
   },
+  wave:  { position: 'absolute', top: 0, left: 0 },
+  bloom: { position: 'absolute', top: BLOOM_TOP, left: SW / 2 - BLOOM_S / 2, zIndex: 3 },
+  content: { position: 'absolute', top: CONTENT_TOP, left: 0, right: 0, alignItems: 'center' },
 
-  // Wave: absolutely positioned SVG — height includes the wave tail
-  wave: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  },
-
-  // Bloom: absolutely centered horizontally, straddles wave boundary
-  bloom: {
-    position: 'absolute',
-    top: BLOOM_TOP,
-    left: SW / 2 - BLOOM_S / 2,
-    zIndex: 3,
-  },
-
-  // Content block below bloom
-  content: {
-    position: 'absolute',
-    top: CONTENT_TOP,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-
-  // Wordmark row
-  wordmark: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 7,
-  },
+  wordmark: { flexDirection: 'row', alignItems: 'flex-start', gap: 7 },
   wordFlora: {
-    fontFamily: 'Georgia',
-    fontSize: 42,
-    fontWeight: '700',
-    color: C.primary,
+    fontFamily:    'Georgia',
+    fontSize:      Typography.fontSizeStat,
+    fontWeight:    Typography.fontWeightBold,
+    color:         Colors.primary,
     letterSpacing: -0.5,
-    lineHeight: 46,
+    lineHeight:    46,
   },
   aiBadge: {
-    backgroundColor: C.primary,
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    marginTop: 7,
+    backgroundColor:  Colors.primary,
+    borderRadius:     BorderRadius.xl,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical:   3,
+    marginTop:         7,
   },
   aiText: {
-    color: C.accentLight,
-    fontSize: 13,
-    fontWeight: '700',
+    color:      Colors.accentLight,
+    fontSize:   Typography.fontSizeSM,
+    fontWeight: Typography.fontWeightBold,
     lineHeight: 16,
   },
 
-  // PLANT CARE
   plantCareLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: C.textMuted,
+    fontSize:      Typography.fontSizeXS,
+    fontWeight:    Typography.fontWeightMedium,
+    color:         Colors.textMuted,
     letterSpacing: 3.5,
     textTransform: 'uppercase',
-    marginTop: 6,
+    marginTop:     6,
   },
 
-  // Divider
   divider: {
-    width: 36,
-    height: 2,
-    borderRadius: 2,
-    backgroundColor: C.accentLight,
-    marginTop: 20,
-    marginBottom: 16,
+    width:           36,
+    height:          Spacing.xxs,
+    borderRadius:    BorderRadius.xs,
+    backgroundColor: Colors.accentLight,
+    marginTop:       Spacing.xl,
+    marginBottom:    Spacing.lg,
   },
 
-  // Tagline
   tagline: {
-    fontFamily: 'Georgia',
-    fontSize: 22,
-    fontWeight: '700',
-    color: C.primaryDark,
-    textAlign: 'center',
-    lineHeight: 30,
+    fontFamily:       'Georgia',
+    fontSize:         Typography.fontSizeEmoji,
+    fontWeight:       Typography.fontWeightBold,
+    color:            Colors.primaryDark,
+    textAlign:        'center',
+    lineHeight:       30,
     paddingHorizontal: 36,
   },
 
-  // Sub-copy
   subWrap: { marginTop: 10 },
   subCopy: {
-    fontSize: 13,
-    color: C.textMuted,
-    textAlign: 'center',
-    lineHeight: 20,
+    fontSize:          Typography.fontSizeSM,
+    color:             Colors.textMuted,
+    textAlign:         'center',
+    lineHeight:        20,
     paddingHorizontal: 44,
   },
 
-  // Loading dots
   dotsRow: {
-    position: 'absolute',
-    bottom: 52,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
+    position:       'absolute',
+    bottom:         52,
+    left:           0,
+    right:          0,
+    flexDirection:  'row',
     justifyContent: 'center',
-    gap: 7,
+    gap:            7,
   },
 });
