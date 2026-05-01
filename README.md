@@ -2,9 +2,9 @@
 
 # FloraAI
 
-**Your AI-powered plant care companion 🌿**
+**Your AI-powered plant care companion**
 
-[![React Native](https://img.shields.io/badge/React%20Native-0.76-61DAFB?style=flat-square&logo=react)](https://reactnative.dev)
+[![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB?style=flat-square&logo=react)](https://reactnative.dev)
 [![Expo](https://img.shields.io/badge/Expo-SDK%2054-000020?style=flat-square&logo=expo)](https://expo.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
 [![Gemini AI](https://img.shields.io/badge/Gemini-2.5%20Flash-4285F4?style=flat-square&logo=google)](https://ai.google.dev)
@@ -13,40 +13,44 @@
 
 ---
 
-## 🌱 About
+## About
 
-FloraAI is an AI-powered plant care app built with React Native and Expo. It helps you track all your plants, stay on top of watering schedules, and get personalised care advice — all in one beautiful, nature-themed interface.
+FloraAI is an AI-powered plant care app built with React Native and Expo. It helps you track all your plants, stay on top of watering schedules, get personalised care advice, and visualise your garden's health — all in one clean, nature-themed interface.
 
-When you add a plant, FloraAI uses the **Google Gemini API** to instantly suggest a watering frequency, care tips, and difficulty level based on the specific plant name and type you enter. No guesswork — just smart, personalised plant care.
+When you add a plant, FloraAI uses the **Google Gemini API** to instantly suggest a watering frequency, care tips, and difficulty level based on the specific plant name and type you enter.
 
 ---
 
-## ✨ Features
+## Screenshots
+
+| Home | Reminders | Garden Stats |
+|:---:|:---:|:---:|
+| <img src="./screenshots/01_home.png" width="200"/> | <img src="./screenshots/02_reminders.png" width="200"/> | <img src="./screenshots/03_stats.png" width="200"/> |
+
+| Plant Detail | Add Plant (AI Sheet) | Add Plant (Full) | Splash |
+|:---:|:---:|:---:|:---:|
+| <img src="./screenshots/04_plant_detail.png" width="200"/> | <img src="./screenshots/05_add_plant_ai.png" width="200"/> | <img src="./screenshots/06_add_plant.png" width="200"/> | <img src="./screenshots/07_splash.png" width="200"/> |
+
+---
+
+## Features
 
 | Feature | Description |
 |---|---|
-| 🌱 **Plant Management** | Add, view, and remove plants from your personal garden |
-| 💧 **Watering Schedules** | Set custom watering frequencies and track when plants need water |
-| 🤖 **AI Care Suggestions** | Tap a plant type to get instant Gemini-powered care tips |
-| 📅 **Watering History** | Track when each plant was last watered |
-| 🔔 **Push Notifications** | Get reminded at 9 AM on each plant's watering day |
-| 📸 **Plant Photos** | Attach camera or gallery photos to each plant |
-| 📱 **Cross-Platform** | Works on both iOS and Android via Expo Go or a dev build |
+| **Plant Management** | Add, view, and remove plants from your personal garden with swipe-to-delete |
+| **Watering Schedules** | Set custom watering frequencies; new plants start as due for watering immediately |
+| **AI Care Suggestions** | Tap a plant type to get instant Gemini-powered care tips via an animated bottom sheet |
+| **Garden Stats** | Animated health score ring (0–100), watering streak, 7-day activity chart, and plant status overview |
+| **Reminders** | Bell icon with overdue badge on the home header; full watering schedule categorised by urgency |
+| **Push Notifications** | Get reminded at 9 AM on each plant's watering day |
+| **Plant Photos** | Attach camera or gallery photos to each plant |
+| **Watering Health Bar** | Per-plant progress bar showing days until next watering |
+| **Consistent Icon System** | Ionicons used throughout — no emoji UI icons |
+| **Design Token System** | Single `theme.ts` source of truth for all colours, typography, spacing, and border radii |
 
 ---
 
-## 📸 Screenshots
-
-<img width="200" alt="Screenshot 2026-05-01 at 00 35 55" src="https://github.com/user-attachments/assets/4e7b182d-9a80-4de6-82e2-f19f0c74ba07" />
-<img width="200" alt="Screenshot 2026-05-01 at 00 31 22" src="https://github.com/user-attachments/assets/fa8d300a-434c-462d-ac08-baeadb3025bf" />
-<img width="200" alt="Screenshot 2026-05-01 at 00 31 08" src="https://github.com/user-attachments/assets/f45619a4-df3b-4074-99f6-55cc647ba9b3" />
-<img width="200" alt="Screenshot 2026-05-01 at 00 30 57" src="https://github.com/user-attachments/assets/eaaef638-30d1-4246-bdbd-c0e3b9781a92" />
-<img width="200" alt="Screenshot 2026-05-01 at 00 30 41" src="https://github.com/user-attachments/assets/8fdd871f-88f0-4a2d-8f44-92a503bf052d" />
-<img width="200" alt="Screenshot 2026-05-01 at 00 30 07" src="https://github.com/user-attachments/assets/1430c16f-fe0d-410c-ad32-4f027d5a1c6a" />
-
----
-
-## 🛠 Tech Stack
+## Tech Stack
 
 | Technology | Purpose |
 |---|---|
@@ -55,20 +59,21 @@ When you add a plant, FloraAI uses the **Google Gemini API** to instantly sugges
 | **React Navigation** | Bottom tab + native stack navigation |
 | **AsyncStorage** | Local persistent data storage |
 | **Google Gemini AI** | AI-powered plant care suggestions (`gemini-2.5-flash`) |
+| **react-native-svg** | Animated health score ring in Garden Stats |
+| **@expo/vector-icons (Ionicons)** | Consistent icon system across all screens |
 | **expo-notifications** | Local push notifications for watering reminders |
 | **expo-image-picker** | Camera and gallery photo selection |
+| **expo-linear-gradient** | Gradient headers and AI sheet styling |
 | **React Native Gesture Handler** | Swipe-to-delete interactions |
-| **expo-linear-gradient** | Gradient UI elements and AI sheet styling |
 | **expo-haptics** | Haptic feedback throughout the app |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org) (v18 or later)
-- [Expo CLI](https://docs.expo.dev/get-started/installation/) — `npm install -g expo-cli`
 - [Expo Go](https://expo.dev/go) app on your iOS or Android device
 - A [Google Gemini API key](https://aistudio.google.com/app/apikey) (free tier available)
 
@@ -88,11 +93,11 @@ When you add a plant, FloraAI uses the **Google Gemini API** to instantly sugges
 3. **Set up your Gemini API key**
 
    Create a `.env` file in the project root:
-   ```bash
+   ```
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
 
-   > ⚠️ Never commit your `.env` file. It is already listed in `.gitignore`.
+   > Never commit your `.env` file — it is already listed in `.gitignore`.
 
 4. **Start the development server**
    ```bash
@@ -112,7 +117,7 @@ When you add a plant, FloraAI uses the **Google Gemini API** to instantly sugges
 
 ---
 
-## 🤖 AI Features
+## AI Features
 
 FloraAI uses the **Google Gemini 2.5 Flash** model to provide intelligent, plant-specific care advice.
 
@@ -132,32 +137,46 @@ User taps "Apply Suggestion" to auto-select the watering schedule
 
 ### What the AI returns
 
-- **💧 Watering Frequency** — how often to water (in days), auto-selected on the frequency chips
-- **🎯 Difficulty** — Easy / Medium / Hard badge with colour coding
-- **💡 Care Tip** — a concise, plant-specific care tip (max 20 words)
+- **Watering Frequency** — how often to water (in days), auto-selected on the frequency chips
+- **Difficulty** — Easy / Medium / Hard badge with colour coding
+- **Care Tip** — a concise, plant-specific care tip
 
 > The AI call is triggered **only** when a plant type card is tapped — never while typing.
 
 ---
 
-## 📁 Project Structure
+## Garden Stats Screen
+
+The Stats tab shows a live snapshot of your garden's health:
+
+- **Health Score Ring** — animated SVG arc counting from 0 to your score (0–100) on load. Ring colour changes red → yellow → green based on score.
+- **Score Calculation** — healthy plants (+10 pts each), due-soon plants (+5 pts), overdue plants (0 pts), plus a streak bonus of up to +20 pts.
+- **Watering Streak** — counts consecutive days where at least one plant was watered.
+- **7-Day Activity Chart** — bar chart built from pure React Native Views showing daily watering activity.
+- **Plant Status Overview** — coloured pill badges (Overdue / Due Soon / Healthy) and a per-plant status list.
+
+---
+
+## Project Structure
 
 ```
 FloraAI/
 ├── App.tsx                        # Root component, notifications setup
 ├── app.json                       # Expo config and plugins
+├── screenshots/                   # App screenshots for README
 ├── .env                           # API keys (not committed)
 └── src/
     ├── constants/
-    │   └── theme.ts               # Colours, typography, spacing
+    │   └── theme.ts               # Single source of truth: colours, typography, spacing, border radii
     ├── navigation/
-    │   └── AppNavigator.tsx       # Tab + stack navigation
+    │   └── AppNavigator.tsx       # Tab navigator (My Garden + Stats) + HomeStack
     ├── screens/
     │   ├── AppSplashScreen.tsx    # Animated launch splash
-    │   ├── HomeScreen.tsx         # Plant list with swipe-to-delete
+    │   ├── HomeScreen.tsx         # Plant list, bell icon with overdue badge, swipe-to-delete
     │   ├── AddPlantScreen.tsx     # Add plant form + AI suggestion sheet
-    │   ├── PlantDetailScreen.tsx  # Plant detail, watering, photo edit
-    │   └── RemindersScreen.tsx    # Upcoming watering schedule
+    │   ├── PlantDetailScreen.tsx  # Plant detail, watering health bar, photo edit
+    │   ├── RemindersScreen.tsx    # Watering schedule categorised by urgency
+    │   └── GardenStatsScreen.tsx  # Health ring, streak, activity chart, plant status
     ├── services/
     │   └── gemini.ts              # Gemini API client
     ├── storage/
@@ -171,54 +190,22 @@ FloraAI/
 
 ---
 
-## 👩‍💻 Development
+## Development
 
 This project was built using **[Claude Code](https://claude.ai/code)** as the primary AI development assistant.
 
-Claude Code handled the full development workflow including:
-- 🏗️ Project scaffolding and architecture decisions
-- ✨ Feature implementation (AI suggestions, notifications, photo picker, swipe gestures)
-- 🐛 Bug diagnosis and fixes
-- 🎨 UI/UX design and animation work
-- 🔒 Security (`.env` handling, API key safety)
-- 📝 Code reviews and refactoring
-
-> Claude Code is Anthropic's AI-powered CLI that works directly inside your terminal and IDE, turning natural language instructions into working code.
+Claude Code handled the full development workflow including architecture decisions, feature implementation, UI/UX design, animation work, and code reviews.
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the **MIT License**.
-
-```
-MIT License
-
-Copyright (c) 2026 FloraAI
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-```
+MIT License — Copyright (c) 2026 FloraAI
 
 ---
 
 <div align="center">
 
-Made with 🌿 and [Claude Code](https://claude.ai/code)
+Made with care and [Claude Code](https://claude.ai/code)
 
 </div>
